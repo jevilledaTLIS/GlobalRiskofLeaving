@@ -1,0 +1,20 @@
+{
+  "id": "confirmationPage",
+  "endPoints": [ ],
+  "presentation": {
+    "pageType": "confirm",
+    "headerSize": "STANDARD",
+    "body": {
+      "type": "section",
+      "horizontal": false,
+      "children": [
+        {
+          "type": "text",
+          "id": "message",
+          "label": "Confirmation message:",
+          "value": "You successfully submitted your request."
+        }
+      ]
+    }
+  }
+}

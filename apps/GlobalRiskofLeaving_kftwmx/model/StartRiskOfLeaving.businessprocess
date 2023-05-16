@@ -1,0 +1,13 @@
+{
+  "id": 1,
+  "name": "StartRiskOfLeaving",
+  "label": "Start Risk Of Leaving",
+  "description": "Business Process to enter Risk Of Leaving",
+  "targetBusinessObject": "TIRiskOfLeaving",
+  "approvalStep": {
+    "actions": [
+      "APPROVE",
+      "DENY"
+    ]
+  }
+}

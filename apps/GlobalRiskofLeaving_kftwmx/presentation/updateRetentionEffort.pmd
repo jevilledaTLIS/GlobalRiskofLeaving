@@ -1,0 +1,172 @@
+{
+  "id": "updateRetentionEffort",
+  "endPoints": [
+    {
+      "baseUrlType": "BUSINESS-OBJECT",
+      "name": "retentionEffortGet",
+      "authType": "sso",
+      "url": "<% '/tIRetentionEfforts/' + queryParams.rententionID %>",
+      "httpMethod": "GET",
+      "isCollection": true
+    },
+    {
+      "baseUrlType": "BUSINESS-OBJECT",
+      "name": "TIRiskOfLeavingGet",
+      "authType": "sso",
+      "url": "<% '/tIRiskOfLeavings/' + queryParams.riskID %>",
+      "httpMethod": "GET"
+    },
+    {
+      "baseUrlType": "BUSINESS-OBJECT",
+      "name": "retentionEffortAll",
+      "authType": "sso",
+      "url": "<%
+              '/tIRetentionEfforts?riskOfLeaving=' + queryParams.riskID
+              %>",
+      "httpMethod": "GET",
+      "isCollection": true
+    }
+  ],
+  "outboundData": {
+    "outboundEndPoints": [
+      {
+        "baseUrlType": "BUSINESS-OBJECT",
+        "name": "retentionEffortPatch",
+        "authType": "sso",
+        "url": "<% '/tIRetentionEfforts/' + queryParams.rententionID %>",
+        "httpMethod": "PATCH",
+        "values": [
+          {
+            "outboundPath": "resolutionDate",
+            "value": "<% date:format(date:now(), 'yyyy-MM-dd') %>"
+          },
+          {
+            "outboundPath": "status",
+            "value": "<% ( resolvedCheck.value ) ? 'Resolved' : 'Open'; %>"
+          },
+          {
+            "outboundPath": "resolutionComment",
+            "value": "<% resolutionDescription.value %>"
+          }
+        ]
+      },
+      {
+        "baseUrlType": "BUSINESS-OBJECT",
+        "name": "TIRiskOfLeavingPatch",
+        "authType": "sso",
+        "url": "<% '/tIRiskOfLeavings/' + queryParams.riskID %>",
+        "httpMethod": "PATCH",
+        "values": [
+          {
+            "outboundPath": "riskStatus",
+            "value": " <%
+                       //Check if the risk of leaving is still opened with this last change
+                       var retentionList    = retentionEffortAll.data;
+                       var riskID           = queryParams.riskID;
+
+                       var openRetentions = retentionList.filter(  retention  => { ( retention.riskOfLeaving.id == riskID)  && ( retention.status == 'Open') } );
+
+                       console.info('Array: ' + openRetentions );
+
+                       if ( openRetentions.size() <= 1 ) return 'Resolved';
+
+                       %>"
+          }
+        ]
+      }
+    ]
+  },
+  "presentation": {
+    "headerSize": "VPS_DEFAULT",
+    "pageType": "edit",
+    "title": {
+      "type": "title",
+      "label": "Update Retention Effort"
+    },
+    "body": {
+      "type": "section",
+      "horizontal": false,
+      "children": [
+        {
+          "type": "text",
+          "id": "descriptionEffort",
+          "label": "Description",
+          "value": "<% retentionEffortGet.retentionEffort %>",
+          "enabled": false,
+          "guide": {
+            "type": "guide",
+            "id": "discriptionGuide",
+            "title": "Description",
+            "text": "Description of the retention effort that we will be doing"
+          }
+        },
+        {
+          "type": "text",
+          "id": "interventionEffort",
+          "label": "Intervention",
+          "value": "<% retentionEffortGet.intervention %>",
+          "enabled": false,
+          "guide": {
+            "type": "guide",
+            "id": "interventionGuide",
+            "title": "Intervention",
+            "text": "What is the action we are going to take to retain the team member"
+          }
+        },
+        {
+          "type": "text",
+          "id": "dateEntered",
+          "label": "Date Entered",
+          "value": "<% retentionEffortGet.entryDate %>",
+          "enabled": false
+        },
+        {
+          "type": "text",
+          "id": "riskLevel",
+          "label": "Risk of Leaving Level",
+          "_value": "<% retentionEffortGet.riskOfLeaving.level %>",
+          "value": "<%
+                    /*
+                    //cambio 2022-07-04:6:20pm
+                     var riskList  = TIRiskOfLeavingGet.data;
+                     var riskRetID = retentionEffortGet.riskOfLeaving.id;
+
+                     var risk =  riskList.find( ( risk ) => { risk.id == riskRetID } )
+                     return risk.level;
+                     */
+
+                    var risk = TIRiskOfLeavingGet;
+                    return risk.level;
+
+                    %>",
+          "enabled": false
+        },
+        {
+          "type": "textArea",
+          "id": "resolutionDescription",
+          "label": "Resolution Comment",
+          "required": true,
+          "guide": {
+            "type": "guide",
+            "id": "resolutionGuide",
+            "title": "Resolution Comment",
+            "text": "What was the outcome of our retention effort"
+          }
+        },
+        {
+          "type": "checkBox",
+          "id": "resolvedCheck",
+          "label": "Resolved?",
+          "value": "<% false %>",
+          "required": true,
+          "guide": {
+            "type": "guide",
+            "id": "resolvedGuide",
+            "title": "Resolved Value",
+            "text": "Use this option to mark your retention effort as resolved. Your retention effort can be resolved regardless of whether it worked or not"
+          }
+        }
+      ]
+    }
+  }
+}

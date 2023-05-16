@@ -1,0 +1,6 @@
+{
+  "id": 1,
+  "name": "ManageGlobalRiskofLeaving",
+  "label": "Manage: Custom Risk Of Leaving",
+  "enabledForPageSecurity": true
+}

@@ -1,0 +1,67 @@
+{
+  "id": 2,
+  "name": "TIRetentionEffort",
+  "label": "TI Retention Effort",
+  "defaultSecurityDomains": [
+    "ManageGlobalRiskofLeaving"
+  ],
+  "defaultCollection": {
+    "name": "tIRetentionEfforts",
+    "label": "TI Retention Efforts"
+  },
+  "fields": [
+    {
+      "id": 1,
+      "name": "riskOfLeaving",
+      "label": "Risk of Leaving",
+      "type": "SINGLE_INSTANCE",
+      "target": "TIRiskOfLeaving",
+      "secureByTarget": true
+    },
+    {
+      "id": 2,
+      "name": "createdBy",
+      "label": "Created By",
+      "type": "SINGLE_INSTANCE",
+      "target": "WORKER"
+    },
+    {
+      "id": 3,
+      "name": "entryDate",
+      "label": "Entry Date",
+      "type": "DATE",
+      "precision": "DAY"
+    },
+    {
+      "id": 4,
+      "name": "resolutionDate",
+      "label": "Resolution Date",
+      "type": "DATE",
+      "precision": "DAY"
+    },
+    {
+      "id": 5,
+      "name": "status",
+      "label": "Status",
+      "type": "TEXT"
+    },
+    {
+      "id": 6,
+      "name": "intervention",
+      "label": "Intervention",
+      "type": "TEXT"
+    },
+    {
+      "id": 7,
+      "name": "retentionEffort",
+      "label": "Retention Comment",
+      "type": "TEXT"
+    },
+    {
+      "id": 8,
+      "name": "resolutionComment",
+      "label": "Resolution Comment",
+      "type": "TEXT"
+    }
+  ]
+}

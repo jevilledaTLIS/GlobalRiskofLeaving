@@ -1,0 +1,269 @@
+{
+  "id": "retentionEffort",
+  "include": [
+    "retentionEffort.script",
+    "riskDataList.script"
+  ],
+  "endPoints": [
+    {
+      "baseUrlType": "COMMON",
+      "name": "currLoginUser",
+      "authType": "sso",
+      "url": "/workers/me"
+    },
+    {
+      "name": "worker",
+      "baseUrlType": "COMMON",
+      "authType": "sso",
+      "url": "<% '/workers/' + queryParams.worker %>"
+    },
+    {
+      "baseUrlType": "BUSINESS-OBJECT",
+      "name": "TIRiskOfLeavingGet",
+      "authType": "sso",
+      "url": "<% '/tIRiskOfLeavings?employee=' + queryParams.worker %>",
+      "httpMethod": "GET",
+      "isCollection": true
+    },
+    {
+      "baseUrlType": "BUSINESS-OBJECT",
+      "name": "retentionEffortGet",
+      "authType": "sso",
+      "url": "<%
+              var wkrSelected = worker.id;
+              var riskId1 = TIRiskOfLeavingGet.data;
+              var riskId2 = riskId1.filter( risk => { ( (risk.employee.id == wkrSelected)  && (risk.riskStatus == 'Open') ) } )
+              var riskId =  (!empty riskId2) ?  riskId2.last().id : '';
+
+              '/tIRetentionEfforts?riskOfLeaving=' + riskId %>",
+      "httpMethod": "GET",
+      "isCollection": true
+    }
+  ],
+  "outboundData": {
+    "outboundEndPoints": [
+      {
+        "baseUrlType": "BUSINESS-OBJECT",
+        "name": "tIRetentionEffortsPOST",
+        "authType": "sso",
+        "url": "/tIRetentionEfforts",
+        "httpMethod": "POST",
+        "values": [
+          {
+            "outboundPath": "createdBy.id",
+            "value": "<% currLoginUser.id %>"
+          },
+          {
+            "outboundPath": "entryDate",
+            "value": "<% date:format(date:now(), 'yyyy-MM-dd') %>"
+          },
+          {
+            "outboundPath": "status",
+            "value": "<% 'Open' %>"
+          },
+          {
+            "outboundPath": "riskOfLeaving",
+            "value": "<%
+                      var riskOfLeavingList = TIRiskOfLeavingGet.data; // return array with All RiskOfLeaving Data
+                      var wkrSelected = queryParams.worker ; //return workerID
+                      var uniqueRisk = null;
+
+                      if (wkrSelected != null)
+                          uniqueRisk = riskOfLeavingList.filter( (risk) =>{( (risk.employee.id == wkrSelected) && (risk.level != 'Low') && (risk.riskStatus == 'Open')) }).last();
+
+                      if ( uniqueRisk != null)
+                          return  { 'id': uniqueRisk.id , 'descriptor': uniqueRisk.discriptor };
+
+                      %>"
+          }
+        ]
+      }
+    ]
+  },
+  "presentation": {
+    "headerSize": "VPS_DEFAULT",
+    "pageType": "edit",
+    "title": {
+      "type": "title",
+      "label": "Retention Effort",
+      "enabled": false
+    },
+    "body": {
+      "type": "section",
+      "horizontal": false,
+      "children": [
+        {
+          "type": "richText",
+          "id": "instructionId",
+          "value": "Please refer to the following <a href='https://docs.google.com/document/d/1mQAsZjj45VX6rmYtm7SfV1aj8QH5nJwEg8g3jhB0LWU' target='_blank'>Job aid</a> for instructions on how to fill out the risk of leaving tool.",
+          "enabled": "false"
+        },
+        {
+          "type": "fieldSet",
+          "id": "retentionEffortFS",
+          "_label": "Enter a Retention Effort",
+          "children": [
+            {
+              "type": "richText",
+              "label": "Employee",
+              "id": "rePerson",
+              "value": "<% worker.descriptor %>",
+              "enabled": false
+            },
+            {
+              "type": "dropdown",
+              "id": "interventionID",
+              "label": "Intervention",
+              "values": "<% retentionEffort.interventionList %>",
+              "valueOutBinding": "tIRetentionEffortsPOST.intervention",
+              "required": true,
+              "onChange": "<%
+                           self.clearError();
+                           var retentionList =  retentionEffortGet.data; // return array with All RetentionEffort Data (need riskOfLeaving Object)
+                           var riskOfLeavingList = TIRiskOfLeavingGet.data; // return array with All  RiskOfLeaving Data
+                           var wkrSelected = queryParams.worker; //return workerID
+                           var uniqueRisk = null;
+
+                           if ( wkrSelected != null )
+                               uniqueRisk = riskOfLeavingList.filter( risk =>{ (risk.employee.id == wkrSelected) &&  (risk.level != 'Low' ) && (risk.riskStatus == 'Open') });
+                               else
+                               retentionEffortGrid.setRows([]);
+
+                           if ( !empty uniqueRisk )
+                               retentionEffortGrid.setRows( retentionList.filter( (retention) => { retention.riskOfLeaving.id == uniqueRisk.last().id  }) );
+                               else
+                               rePerson.setError('The team member has no mid/high risk of leaving. Retention efforts are only applicable for team members that are at a high or medium level of risk of leaving.');
+                           %>",
+              "guide": {
+                "type": "guide",
+                "id": "interventionGuide",
+                "title": "Intervention",
+                "text": "What is the action we are going to take to retain the team member. You can also select 'Not applicable' in case a retention effort is not applied"
+              }
+            },
+            {
+              "type": "textArea",
+              "id": "retentionDescription",
+              "label": "Comment Effort Description",
+              "valueOutBinding": "tIRetentionEffortsPOST.retentionEffort",
+              "required": true
+            }
+          ]
+        },
+        {
+          "type": "fieldSet",
+          "id": "retationForSelectWorker",
+          "title": "Retention Efforts",
+          "collapsible": true,
+          "initializeCollapsed": false,
+          "children": [
+            {
+              "type": "grid",
+              "label": "Retention Efforts",
+              "id": "retentionEffortGrid",
+              "rows": "<% %>",
+              "rowVariableName": "retention",
+              "enabled": false,
+              "columns": [
+                {
+                  "type": "column",
+                  "columnId": "entryDate",
+                  "label": "Entry Date",
+                  "cellTemplate": {
+                    "type": "text",
+                    "value": " <% retention.entryDate %> "
+                  }
+                },
+                {
+                  "type": "column",
+                  "columnId": "status",
+                  "label": "Status",
+                  "cellTemplate": {
+                    "type": "text",
+                    "value": "<% retention.status %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "columnId": "rolLevel",
+                  "label": "Risk of Leaving Level ",
+                  "cellTemplate": {
+                    "type": "text",
+                    "value": "<%
+                              var riskOfLeavingList = TIRiskOfLeavingGet.data;
+                              var riskWithRetenObj = retention.riskOfLeaving;
+
+                              var rtnEffort = riskOfLeavingList.find( risk =>{ risk.id == riskWithRetenObj.id } );
+                              return ( !empty rtnEffort ) ?  rtnEffort.level : null;
+
+                              %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "columnId": "intervention",
+                  "label": "Intervention",
+                  "cellTemplate": {
+                    "type": "text",
+                    "value": "<% retention.intervention %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "columnId": "retentionEffortComment",
+                  "label": "Description",
+                  "cellTemplate": {
+                    "type": "text",
+                    "value": "<% retention.retentionEffort %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "columnId": "resolutionDate",
+                  "label": "Resolution Date",
+                  "cellTemplate": {
+                    "type": "text",
+                    "value": "<% retention.resolutionDate %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "columnId": "resolutionComment",
+                  "label": "Resolution Comment",
+                  "cellTemplate": {
+                    "type": "text",
+                    "value": "<% retention.resolutionComment %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "columnId": "updateRetention",
+                  "label": "Update",
+                  "cellTemplate": {
+                    "type": "button",
+                    "action": "AUXILIARY",
+                    "label": "Update",
+                    "visible": "<% ( retention.status != 'Resolved' )  %>",
+                    "taskReference": {
+                      "taskId": "updateRetentionEffort",
+                      "parameterBindings": {
+                        "rententionID": "<% retention.id %>",
+                        "riskID": "<%
+                                   var riskOfLeavingList = TIRiskOfLeavingGet.data;
+                                   var riskWithRetenObj = retention.riskOfLeaving;
+
+                                   var rtnEffort = riskOfLeavingList.find( risk =>{ risk.id == riskWithRetenObj.id } );
+                                   return ( !empty rtnEffort ) ?  rtnEffort.id : null;
+                                   %>"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

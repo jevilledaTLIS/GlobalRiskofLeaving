@@ -1,0 +1,113 @@
+{
+  "appProperties": [ ],
+  "flowDefinitions": [
+    {
+      "id": "confirmationRiskFlow",
+      "flowSteps": [
+        {
+          "id": "riskHome",
+          "transitions": [
+            {
+              "order": "a",
+              "value": "riskConfirmation",
+              "condition": "true"
+            }
+          ],
+          "taskId": "home"
+        },
+        {
+          "id": "riskConfirmation",
+          "taskId": "confirmationPage"
+        }
+      ]
+    },
+    {
+      "id": "confirmationRetentionFlow",
+      "flowSteps": [
+        {
+          "id": "retentionEffort",
+          "transitions": [
+            {
+              "order": "a",
+              "value": "retentionConfirmation",
+              "condition": "true"
+            }
+          ],
+          "taskId": "retentionEffort"
+        },
+        {
+          "id": "retentionConfirmation",
+          "taskId": "confirmationPage"
+        }
+      ]
+    },
+    {
+      "id": "updateRetentionFlow",
+      "flowSteps": [
+        {
+          "id": "updateRetentionEffort",
+          "transitions": [
+            {
+              "order": "a",
+              "value": "retentionBack",
+              "condition": "true"
+            }
+          ],
+          "taskId": "updateRetentionEffort"
+        },
+        {
+          "id": "retentionBack",
+          "taskId": "confirmationPage"
+        }
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "root",
+      "routingPattern": "/",
+      "page": {
+        "id": "home"
+      }
+    },
+    {
+      "id": "home",
+      "routingPattern": "home",
+      "page": {
+        "id": "home"
+      }
+    },
+    {
+      "id": "retentionEffort",
+      "routingPattern": "retentionEffort",
+      "page": {
+        "id": "retentionEffort"
+      }
+    },
+    {
+      "id": "updateRetentionEffort",
+      "routingPattern": "updateRetentionEffort",
+      "page": {
+        "id": "updateRetentionEffort"
+      }
+    },
+    {
+      "id": "confirmationPage",
+      "routingPattern": "confirmationPage",
+      "page": {
+        "id": "confirmationPage"
+      }
+    }
+  ],
+  "applicationId": "GlobalRiskofLeaving_kftwmx",
+  "dataProviders": [
+    {
+      "key": "BUSINESS-OBJECT",
+      "value": "https://api.workday.com/apps/GlobalRiskofLeaving_kftwmx/v1"
+    },
+    {
+      "key": "COMMON",
+      "value": "https://api.workday.com/common/v1"
+    }
+  ]
+}

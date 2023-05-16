@@ -1,0 +1,16 @@
+var interventionList = [
+{"id": "Adjustment" , "descriptor":  "Adjustment"},
+{"id": "Career Planning" , "descriptor":  "Career Planning"},
+{"id": "Coaching" , "descriptor":  "Coaching"},
+{"id": "Disciplinary Action" , "descriptor":  "Disciplinary Action"},
+{"id": "No Changes" , "descriptor":  "No Changes"},
+{"id": "Offered TIU" , "descriptor":  "Offered TIU"},
+{"id": "Others" , "descriptor":  "Others"},
+{"id": "Schedule" , "descriptor":  "Schedule"},
+{"id": "Skill Re-Assessment" , "descriptor":  "Skill Re-Assessment"},
+{"id": "Not Applicable" , "descriptor":  "Not Applicable"}
+];
+
+{
+  "interventionList": interventionList
+}

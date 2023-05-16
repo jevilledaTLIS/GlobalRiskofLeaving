@@ -1,0 +1,21 @@
+{
+  "id": "GlobalRiskofLeaving_kftwmx",
+  "languages": [
+    {
+      "code": "en-US",
+      "description": "English"
+    }
+  ],
+  "siteAuth": {
+    "authTypes": [
+      {
+        "scheme": "SSO",
+        "id": "sso"
+      }
+    ]
+  },
+  "siteId": "GlobalRiskofLeaving_kftwmx",
+  "cdnEnabled": true,
+  "siteProperties": [ ],
+  "applicationId": "GlobalRiskofLeaving_kftwmx"
+}

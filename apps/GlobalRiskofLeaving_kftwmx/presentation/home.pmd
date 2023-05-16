@@ -1,0 +1,458 @@
+{
+  "id": "home",
+  "include": [
+    "riskDataList.script"
+  ],
+  "endPoints": [
+    {
+      "name": "worker",
+      "baseUrlType": "COMMON",
+      "authType": "sso",
+      "url": "<% '/workers/' + queryParams.worker  %>"
+    },
+    {
+      "baseUrlType": "COMMON",
+      "name": "currLoginUser",
+      "authType": "sso",
+      "url": "/workers/me"
+    },
+    {
+      "baseUrlType": "BUSINESS-OBJECT",
+      "name": "TIRiskOfLeavingGet",
+      "authType": "sso",
+      "url": "<% '/tIRiskOfLeavings?employee=' + queryParams.worker %>",
+      "httpMethod": "GET",
+      "isCollection": true
+    },
+    {
+      "baseUrlType": "BUSINESS-OBJECT",
+      "name": "retentionEffortGet",
+      "authType": "sso",
+      "url": "<%
+              var wkrSelected = worker.id;
+              var riskId1 = TIRiskOfLeavingGet.data;
+              var riskId2 = riskId1.filter( risk => { ( (risk.employee.id == wkrSelected)  && (risk.riskStatus == 'Open') ) } )
+              var riskId =  (!empty riskId2) ?  riskId2.last().id : '';
+
+              '/tIRetentionEfforts?riskOfLeaving=' + riskId %>",
+      "httpMethod": "GET",
+      "isCollection": true,
+      "deferred": true
+    }
+  ],
+  "outboundData": {
+    "outboundEndPoints": [
+      {
+        "baseUrlType": "BUSINESS-OBJECT",
+        "name": "TIRiskOfLeavingPOST",
+        "authType": "sso",
+        "url": "/tIRiskOfLeavings",
+        "httpMethod": "POST",
+        "values": [
+          {
+            "outboundPath": "createdBy.id",
+            "value": "<% currLoginUser.id %>"
+          },
+          {
+            "outboundPath": "tentativeLeavingDate",
+            "value": "<% date:format(tentativeDateLeaving.value, 'yyyy-MM-dd') %>"
+          },
+          {
+            "outboundPath": "entryDate",
+            "value": "<% date:format(date:now(), 'yyyy-MM-dd') %>"
+          },
+          {
+            "outboundPath": "riskStatus",
+            "value": "<% ( riskLevelList.getValue()[0] != 'Low' ) ?  'Open' : 'Resolved'  %>"
+          },
+          {
+            "outboundPath": "employee.id",
+            "value": "<% queryParams.worker  %>"
+          }
+        ]
+      },
+      {
+        "name": "transitionOutboundVars",
+        "type": "outboundVariable",
+        "variableScope": "flow",
+        "values": [
+          {
+            "outboundPath": "worker",
+            "value": "<% queryParams.worker %>"
+          }
+        ]
+      },
+      {
+        "name":"createRiskEvent",
+        "baseUrlType":"BUSINESS-OBJECT",
+        "url":"/startRiskOfLeavingEvents",
+        "httpMethod":"POST",
+        "authType":"sso",
+        "values":[
+          {
+            "outboundPath":"businessProcessTarget.id",
+            "value":"<%TIRiskOfLeavingPOST.id%>"
+          }
+        ],
+        "onSend":"<%console.info(json:asJSON(self.data));
+        return self.data;%>"
+      }
+
+    ]
+  },
+  "presentation": {
+    "headerSize": "VPS_DEFAULT",
+    "title": {
+      "type": "title",
+      "label": "Global Risk of Leaving"
+    },
+    "body": {
+      "type": "section",
+      "children": [
+        {
+          "type": "fieldSet",
+          "id": "RiskOfLeaving",
+          "_label": "Enter a Risk of Leaving",
+          "children": [
+            {
+              "type": "richText",
+              "id": "instructionId",
+              "value": "Please refer to the following <a href='https://docs.google.com/document/d/1mQAsZjj45VX6rmYtm7SfV1aj8QH5nJwEg8g3jhB0LWU' target='_blank'>Job aid</a> for instructions on how to fill out the risk of leaving tool.",
+              "enabled": "false"
+            },
+            {
+              "type": "richText",
+              "label": "Employee",
+              "id": "riskPerson",
+              "value": "<% worker.descriptor %>",
+              "enabled": false
+            },
+            {
+              "type": "dropdown",
+              "label": "Risk of Leaving",
+              "id": "riskLevelList",
+              "values": "<%
+                         [{
+                             'id': 'Low',
+                             'descriptor': 'Low'
+                         },
+{
+                             'id': 'Medium',
+                             'descriptor': 'Medium'
+                         },
+{
+                             'id': 'High',
+                             'descriptor': 'High'
+                         }]
+                         %>",
+              "required": true,
+              "valueOutBinding": "TIRiskOfLeavingPOST.level",
+              "onChange": "<%
+                           self.clearError();
+                           riskDataList.getRiskLevel(self.getValue());
+
+                           var riskData = TIRiskOfLeavingGet.data;
+                           var wkrSelected = worker.id;
+                           var arrayRisks = [];  var arrayRetentions = [];
+
+                           if ( wkrSelected != null ) {
+                               arrayRisks = riskData.filter( risk => { ((risk.level != 'Low')  && (risk.riskStatus == 'Open') ) } );
+                          }
+                           else {
+                               retentionEffortGrid.setRows([]);
+                          }
+
+                           console.info('ArrayRisk: ' + arrayRisks);
+
+                           //check if has an open risk
+                           if ( !empty ( arrayRisks ) ) {
+                               var retentionCall = retentionEffortGet.invoke();
+                               var retentionData = retentionCall.data;
+
+                               if ( empty( retentionData ) )
+                                   riskPerson.setError('The team member has a mid/high risk of leaving with no retention efforts. Remember to enter the retention effort that you have worked on and also mark it as resolved so that the tool allows you to move the team member to another level of risk of leaving');
+                               else {
+                                   arrayRetentions =  retentionData.filter( (retention) => { ((retention.riskOfLeaving.id == arrayRisks.last().id ) && (retention.status == 'Open') ) });
+
+                                   console.info('ArrayRetention: ' + arrayRetentions);
+
+                                       if (!empty arrayRetentions ) {
+                                           var retentionCall = retentionEffortGet.invoke();
+                                           var retentionData = retentionCall.data;
+
+                                            riskPerson.setError('The team member has an open retention effort. Mark the retention effort as resolved to be able to change the risk of leaving');
+
+                                            //setGridValues
+                                            retentionEffortGrid.setRows( retentionData.filter( (retention) => { retention.riskOfLeaving.id == arrayRisks.last().id  }) );
+                                       }
+                               }
+                           }
+
+                           %>",
+              "guide": {
+                "type": "guide",
+                "id": "riskLevelGuide",
+                "title": "Risk of Leaving Level",
+                "text": "The Risk of leaving level refers to how likely it is that the team member will leave the company (Voluntary/Involuntary)"
+              }
+            },
+            {
+              "type": "dropdown",
+              "id": "reasonLeaving",
+              "label": "Category",
+              "values": "<%[
+{
+                  'id': 'Voluntary',
+                  'descriptor': 'Voluntary'
+              },
+{
+                  'id': 'Involuntary',
+                  'descriptor': 'Involuntary'
+              }
+              ]%>",
+              "onChange": "<% riskDataList.setReason(self.getValue()); %>",
+              "required": true,
+              "visible": false,
+              "idKey": "descriptor",
+              "valueOutBinding": "TIRiskOfLeavingPOST.reasonOfLeaving",
+              "guide": {
+                "type": "guide",
+                "id": "riskReasonGuide",
+                "title": "Category",
+                "text": "It shows us the two main categories by which a person can leave the company. Voluntarily or Involuntarily. Depending on this selection the reasons available in the following dropdown will change"
+              }
+            },
+            {
+              "type": "dropdown",
+              "id": "subReasonLeaving",
+              "label": "Reason",
+              "values": "<% [] %>",
+              "required": true,
+              "visible": false,
+              "valueOutBinding": "TIRiskOfLeavingPOST.subReasonOfLeaving",
+              "guide": {
+                "type": "guide",
+                "id": "riskReasonGuide",
+                "title": "Reason of Leaving",
+                "text": "The options displayed in this dropdown will depend on what is selected in the category dropdown. It refers to the specific reason why the team member is at medium/high risk of leaving. Please refer to the job aid in case you want to know more about each reason of leaving."
+              }
+            },
+            {
+              "type": "date",
+              "id": "tentativeDateLeaving",
+              "label": "Tentative Date of Leaving",
+              "required": true,
+              "visible": false,
+              "valueOutBinding": "TIRiskOfLeavingPOST.tentativeLeavingDate",
+              "guide": {
+                "type": "guide",
+                "id": "tentativeDateGuide",
+                "title": "Tentative Date of Leaving",
+                "text": "This option appears when we select the Middle or High option as risk of leaving level. This option allows us to enter the date in which we have identified the team member could leave the company"
+              }
+            },
+            {
+              "type": "instanceList",
+              "label": "Engagement Level",
+              "id": "engagementList",
+              "instanceList": [
+                {
+                  "id": "Engaged",
+                  "descriptor": "Engaged"
+                },
+                {
+                  "id": "Passive",
+                  "descriptor": "Passive"
+                },
+                {
+                  "id": "Disengaged",
+                  "descriptor": "Disengaged"
+                }
+              ],
+              "required": true,
+              "valueOutBinding": "TIRiskOfLeavingPOST.engagementLevel",
+              "guide": {
+                "type": "guide",
+                "id": "engagementLevelGuide",
+                "title": "Engagement Level",
+                "text": "Employee engagement is the strength of the mental and emotional connection employees feel toward the work they do, their teams, and their organization"
+              }
+            },
+            {
+              "type": "dropdown",
+              "id": "engagementReason",
+              "label": "Engagement Reason",
+              "values": "<% riskDataList.engagementReason %>",
+              "required": true,
+              "valueOutBinding": "TIRiskOfLeavingPOST.engagementReason",
+              "guide": {
+                "type": "guide",
+                "id": "engagementReasonGuide",
+                "title": "Engagement Reason",
+                "text": "The reason why our team member is Engaged, Passive or Disengaged"
+              }
+            },
+            {
+              "type": "dropdown",
+              "id": "performanceRating",
+              "label": "Performance Rating",
+              "values": "<% [
+{
+                  'id': 'Exceed Expectactions',
+                  'descriptor': 'Exceed Expectactions'
+              },
+{
+                  'id': 'Meets Expectactions',
+                  'descriptor': 'Meets Expectactions'
+              },
+{
+                  'id': 'Below Expectactions',
+                  'descriptor': 'Below Expectactions'
+              }
+              ] %>",
+              "valueOutBinding": "TIRiskOfLeavingPOST.performanceRating",
+              "guide": {
+                "type": "guide",
+                "id": "performanceRatingGuide",
+                "title": "Performance Rating",
+                "text": "This option allows us to indicate the general performance of our team member. We must consider how well our team member is performing in the current job"
+              }
+            },
+            {
+              "type": "checkBox",
+              "id": "worthRetain",
+              "label": "Worth to Retain",
+              "value": "<% false %>",
+              "valueOutBinding": "TIRiskOfLeavingPOST.worthToRetain",
+              "guide": {
+                "type": "guide",
+                "id": "worthRetainGuide",
+                "title": "Worth to Retain",
+                "text": "This checkbox is not mandatory but it is recommended to click on the checkbox in case we want to indicate that the team member is doing a good job and shows a good attitude or leave it empty in case the team member has attitude/disciplinary problems."
+              }
+            },
+            {
+              "type": "textArea",
+              "id": "comment",
+              "label": "Comment",
+              "valueOutBinding": "TIRiskOfLeavingPOST.comment"
+            }
+          ]
+        },
+        {
+          "type": "fieldSet",
+          "id": "retationForSelectWorker",
+          "title": "Retention Efforts",
+          "collapsible": true,
+          "initializeCollapsed": false,
+          "children": [
+            {
+              "type": "grid",
+              "label": "Retention Efforts",
+              "id": "retentionEffortGrid",
+              "rows": "<% %>",
+              "rowVariableName": "retention",
+              "enabled": false,
+              "columns": [
+                {
+                  "type": "column",
+                  "columnId": "entryDate",
+                  "label": "Entry Date",
+                  "cellTemplate": {
+                    "type": "text",
+                    "value": " <% retention.entryDate %> "
+                  }
+                },
+                {
+                  "type": "column",
+                  "columnId": "status",
+                  "label": "Status",
+                  "cellTemplate": {
+                    "type": "text",
+                    "value": "<% retention.status %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "columnId": "rolLevel",
+                  "label": "Risk of Leaving Level ",
+                  "cellTemplate": {
+                    "type": "text",
+                    "value": "<%
+                              var riskOfLeavingList = TIRiskOfLeavingGet.data;
+                              var riskWithRetenObj = retention.riskOfLeaving;
+
+                              var rtnEffort = riskOfLeavingList.find( risk =>{ risk.id == riskWithRetenObj.id } );
+                              return ( !empty rtnEffort ) ?  rtnEffort.level : null;
+
+                              %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "columnId": "intervention",
+                  "label": "Intervention",
+                  "cellTemplate": {
+                    "type": "text",
+                    "value": "<% retention.intervention %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "columnId": "retentionEffortComment",
+                  "label": "Description",
+                  "cellTemplate": {
+                    "type": "text",
+                    "value": "<% retention.retentionEffort %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "columnId": "resolutionDate",
+                  "label": "Resolution Date",
+                  "cellTemplate": {
+                    "type": "text",
+                    "value": "<% retention.resolutionDate %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "columnId": "resolutionComment",
+                  "label": "Resolution Comment",
+                  "cellTemplate": {
+                    "type": "text",
+                    "value": "<% retention.resolutionComment %>"
+                  }
+                },
+                {
+                  "type": "column",
+                  "columnId": "updateRetention",
+                  "label": "Update",
+                  "cellTemplate": {
+                    "type": "button",
+                    "action": "AUXILIARY",
+                    "label": "Update",
+                    "visible": "<% ( retention.status != 'Resolved' )  %>",
+                    "taskReference": {
+                      "taskId": "updateRetentionEffort",
+                      "parameterBindings": {
+                        "rententionID": "<% retention.id %>",
+                        "riskID": "<%
+                                   var riskOfLeavingList = TIRiskOfLeavingGet.data;
+                                   var riskWithRetenObj = retention.riskOfLeaving;
+
+                                   var rtnEffort = riskOfLeavingList.find( risk =>{ risk.id == riskWithRetenObj.id } );
+                                   return ( !empty rtnEffort ) ?  rtnEffort.id : null;
+                                   %>"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Mock Response",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description":
+      "The unique identifier used to reference this mock response from the mock configuration file. Matches the file name."
+    },
+    "responseCode": {
+      "type": "integer",
+      "description":
+      "The status code of the mock data response. The default value is 200. responseCode must be a valid HTTP response status code."
+    },
+    "responseBody": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Object",
+          "description": "The body of the response. responseBody can be any object, such as a string, list, or map.",
+          "additionalProperties": true
+        },
+        {
+          "type": "string",
+          "description": "The body of the response. responseBody can be any object, such as a string, list, or map."
+        },
+        {
+          "type": "array",
+          "description": "The body of the response. responseBody can be any object, such as a string, list, or map."
+        },
+        {
+          "type": "integer",
+          "description": "The body of the response. responseBody can be any object, such as a string, list, or map."
+        }
+      ]
+    }
+  },
+  "required": ["id", "responseCode", "responseBody"],
+  "definitions": {
+    "Object": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {}
+    }
+  }
+}

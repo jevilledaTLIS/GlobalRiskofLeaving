@@ -1,0 +1,98 @@
+{
+  "id": 1,
+  "name": "TIRiskOfLeaving",
+  "label": "TI Risk Of Leaving",
+  "defaultSecurityDomains": [
+    "ManageGlobalRiskofLeaving"
+  ],
+  "defaultCollection": {
+    "name": "tIRiskOfLeavings",
+    "label": "TI Risk Of Leavings"
+  },
+  "fields": [
+    {
+      "id": 1,
+      "name": "employee",
+      "label": "Employee",
+      "type": "SINGLE_INSTANCE",
+      "target": "WORKER",
+      "secureByTarget": true
+    },
+    {
+      "id": 2,
+      "name": "createdBy",
+      "label": "Created By",
+      "type": "SINGLE_INSTANCE",
+      "target": "WORKER"
+    },
+    {
+      "id": 3,
+      "name": "entryDate",
+      "label": "Entry Date",
+      "type": "DATE",
+      "precision": "DAY"
+    },
+    {
+      "id": 4,
+      "name": "tentativeLeavingDate",
+      "label": "Tentative Leaving Date",
+      "type": "DATE",
+      "precision": "DAY"
+    },
+    {
+      "id": 5,
+      "name": "level",
+      "label": "ROL Level",
+      "type": "TEXT"
+    },
+    {
+      "id": 6,
+      "name": "reasonOfLeaving",
+      "label": "Reason of Leaving",
+      "type": "TEXT"
+    },
+    {
+      "id": 7,
+      "name": "subReasonOfLeaving",
+      "label": "Sub Reason of Leaving",
+      "type": "TEXT"
+    },
+    {
+      "id": 8,
+      "name": "engagementLevel",
+      "label": "Engagement Level",
+      "type": "TEXT"
+    },
+    {
+      "id": 9,
+      "name": "engagementReason",
+      "label": "Engagement Reason",
+      "type": "TEXT"
+    },
+    {
+      "id": 10,
+      "name": "comment",
+      "label": "Comment",
+      "type": "TEXT"
+    },
+    {
+      "id": 11,
+      "name": "worthToRetain",
+      "label": "Worth to Retain",
+      "type": "BOOLEAN"
+    },
+    {
+      "id": 12,
+      "name": "performanceRating",
+      "label": "Performance Rating",
+      "type": "TEXT"
+    },
+    {
+      "id": 13,
+      "name": "riskStatus",
+      "label": "Risk of Leaving Status",
+      "type": "TEXT"
+    }
+
+  ]
+}

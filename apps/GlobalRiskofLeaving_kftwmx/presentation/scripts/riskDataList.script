@@ -1,0 +1,111 @@
+var voluntary = [
+{'id': 'Career Growth > In Field of Study', 'descriptor': 'Career Growth > In Field of Study'},
+{'id': 'Career Growth > Other Job Offer', 'descriptor': 'Career Growth > Other Job Offer'},
+{'id': 'Career Growth > Transfer to a higher job level', 'descriptor': 'Career Growth > Transfer to a higher job level'},
+{'id': 'Dissatisfied with Job', 'descriptor': 'Dissatisfied with Job'},
+{'id': "Dissatisfied with Job > Didn't Like the Job", 'descriptor': "Dissatisfied with Job > Didn't Like the Job"},
+{'id': 'Dissatisfied with Job > Other Job Offer', 'descriptor': 'Dissatisfied with Job > Other Job Offer'},
+{'id': 'Dissatisfied With Job > Prefers remote workstyle', 'descriptor': 'Dissatisfied With Job > Prefers remote workstyle'},
+{'id': 'Dissatisfied With Job > Prefers on-site workstyle', 'descriptor': 'Dissatisfied With Job > Prefers on-site workstyle'},
+{'id': 'Dissatisfied With Job > Prefers combined workstyle', 'descriptor': 'Dissatisfied With Job > Prefers combined workstyle'},
+{'id': 'Dissatisfied with Management', 'descriptor': 'Dissatisfied with Management'},
+{'id': 'End of Contract', 'descriptor': 'End of Contract'},
+{'id': 'Family Reasons', 'descriptor': 'Family Reasons'},
+{'id': 'Health Reasons', 'descriptor': 'Health Reasons'},
+{'id': 'Issues with Pay/Benefits', 'descriptor': 'Issues with Pay/Benefits'},
+{'id': 'Issues with Work Schedule', 'descriptor': 'Issues with Work Schedule'},
+{'id': 'Job Security', 'descriptor': 'Job Security'},
+{'id': 'Job stability', 'descriptor': 'Job stability'},
+{'id': 'No Call No Show / AWOL', 'descriptor': 'No Call No Show / AWOL'},
+{'id': 'Other Job Offer', 'descriptor': 'Other Job Offer'},
+{'id': 'Personal / Undisclosed', 'descriptor': 'Personal / Undisclosed'},
+{'id': 'Personal Safety', 'descriptor': 'Personal Safety'},
+{'id': 'Proximity', 'descriptor': 'Proximity'},
+{'id': 'Relocation', 'descriptor': 'Relocation'},
+{'id': 'Retirement', 'descriptor': 'Retirement'},
+{'id': 'To Continue Studies', 'descriptor': 'To Continue Studies'},
+{'id': 'To Go into Business', 'descriptor': 'To Go into Business'},
+{'id': 'To Migrate / Work Overseas', 'descriptor': 'To Migrate / Work Overseas'}
+];
+
+var involuntary = [
+{'id': 'Disciplinary Action/Case > Attendance', 'descriptor': 'Disciplinary Action/Case > Attendance'},
+{'id': 'Disciplinary Action/Case > Behavioral', 'descriptor': 'Disciplinary Action/Case > Behavioral'},
+{'id': 'Disciplinary Action/Case > Failed Drug Test', 'descriptor': 'Disciplinary Action/Case > Failed Drug Test'},
+{'id': 'Not Authorized to Work', 'descriptor': 'Not Authorized to Work'},
+{'id': 'Option to Resign', 'descriptor': 'Option to Resign'},
+{'id': 'Option to Resign > Attendance Issues', 'descriptor': 'Option to Resign > Attendance Issues'},
+{'id': 'Option to Resign > Disciplinary Case','descriptor': 'Option to Resign > Disciplinary Case' },
+{'id': 'Option to Resign > Poor Performance','descriptor': 'Option to Resign > Poor Performance' },
+{'id': 'Other','descriptor': 'Other' },
+{'id': 'Poor Performance','descriptor': 'Poor Performance' },
+{'id': 'Reorganization','descriptor': 'Reorganization' },
+{'id': 'Rescinded','descriptor': 'Rescinded' },
+{'id': 'Security > External Fraud','descriptor': 'Security > External Fraud' },
+{'id': 'Security > Extortion','descriptor': 'Security > Extortion' },
+{'id': 'Security > Internal Fraud','descriptor': 'Security > Internal Fraud' },
+{'id': 'Security > Thieving','descriptor': 'Security > Thieving' },
+{'id': 'Security > Work Ethics','descriptor': 'Security > Work Ethics' },
+{'id': 'Workforce Reduction','descriptor': 'Workforce Reduction' },
+{'id': 'Workforce Reduction > No available positions','descriptor': 'Workforce Reduction > No available positions' },
+{'id': 'Workforce Reduction > Ramp Down','descriptor': 'Workforce Reduction > Ramp Down' }
+];
+
+
+var engagementReason = [
+{  'id': 'Career, Development and Learning', 'descriptor': 'Career, Development and Learning'},
+{  'id': 'Customer/Client', 'descriptor': 'Customer/Client'},
+{  'id': 'Diversity and Inclusiveness', 'descriptor': 'Diversity and Inclusiveness'},
+{  'id': 'Employment Brand', 'descriptor': 'Employment Brand'},
+{  'id': 'Enabling Work', 'descriptor': 'Enabling Work'},
+{  'id': 'Innovation and Experimentation', 'descriptor': 'Innovation and Experimentation'},
+{  'id': 'Leadership', 'descriptor': 'Leadership'},
+{  'id': 'Leadership Response and Communication', 'descriptor': 'Leadership Response and Communication'},
+{  'id': 'Performance, Pay and Recognition', 'descriptor': 'Performance, Pay and Recognition'},
+{  'id': 'Work Effectiveness', 'descriptor': 'Work Effectiveness'},
+{  'id': 'Work Tasks and Influence', 'descriptor': 'Work Tasks and Influence'},
+{  'id': 'Work Health and Safety', 'descriptor': 'Work Health and Safety'},
+{  'id': 'Other',  'descriptor': 'Other'}
+];
+
+var getRiskLevel = function(level) {
+  if(level == ['Medium'] || level == ['High']) {
+    reasonLeaving.setVisible( true );
+      subReasonLeaving.setVisible( true );
+      tentativeDateLeaving.setVisible( true );
+
+  } else {
+    reasonLeaving.setVisible( false );
+      subReasonLeaving.setVisible( false );
+      tentativeDateLeaving.setVisible( false );
+  }
+};
+
+var setReason = function( reason ) {
+  if ( reason == ['Voluntary'] ) {
+    subReasonLeaving.setValues(voluntary );
+  } else if( reason == ['Involuntary'] ) {
+    subReasonLeaving.setValues(involuntary );
+  }else{
+    subReasonLeaving.setValues( [] );
+  }
+};
+
+var setWorkerValue = function ( wkList, QPworker ) {
+  var wkrList = wkList.data;
+  var wkrId = QPworker;
+
+  return wkrList.filter(( worker ) => {
+    worker.id == wkrId;
+  });
+};
+
+
+{
+  "voluntary": voluntary,
+  "involuntary":involuntary,
+  "getRiskLevel": getRiskLevel,
+  "setReason": setReason,
+  "engagementReason": engagementReason,
+  "setWorkerValue": setWorkerValue
+}
