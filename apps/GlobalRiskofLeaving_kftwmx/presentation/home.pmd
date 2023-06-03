@@ -34,10 +34,16 @@
       "authType": "sso",
       "deferred": true,
       "url": "<%
-              var query = 'SELECT employee, entryDate, level, riskStatus'+
-                  ' FROM  GlobalRiskofLeaving_kftwmx_tIRiskOfLeavings '+
-                  ' WHERE (employee = \"'  + id +'\") AND riskStatus = \"Open\" LIMIT 1 ';
+              var query = 'SELECT employee, entryDate, level, riskStatus, workdayID FROM GlobalRiskofLeaving_kftwmx_tIRiskOfLeavings WHERE (employee = \"'+ id + '\") AND riskStatus = \"Open\" LIMIT 1';
               return 'data?query=' + query.urlEncode();
+              %>"
+    },
+    {
+      "name": "totalRetentions",
+      "baseUrlType": "BUSINESS-OBJECT",
+      "authType": "sso",
+      "deferred": true,
+      "url": "<% '/tIRetentionEfforts?riskOfLeaving='+ id;
               %>"
     }
   ],
@@ -180,8 +186,21 @@
                   "label": "Initiate",
                   "visible": "<%
                               var risk = openRetentionWorker.invoke( {'id': reportRow.id});
-                              !empty(risk.data);
+                              return (!empty risk.data);
                               %>"
+                }
+              },
+              {
+                "type": "column",
+                "columnId": "totalRetentions",
+                "label": "Total Open Retentions",
+                "cellTemplate": {
+                  "type": "text",
+                  "value": "<%
+                            var risk          = openRetentionWorker.invoke({'id': reportRow.id});
+                            var retentionID   = (!empty risk.data) ? risk.data[0].workdayID : null;
+                            var total =  (retentionID != null) ? totalRetentions.invoke({'id': retentionID}).total : 0;
+                            %>"
                 }
               },
               {

@@ -12,6 +12,10 @@
   "applicationId": "GlobalRiskofLeaving_kftwmx",
   "dataProviders": [
     {
+      "key": "BUSINESS-OBJECT",
+      "value": "https://api.workday.com/apps/GlobalRiskofLeaving_kftwmx/v1"
+    },
+    {
       "key": "COMMON",
       "value": "https://api.workday.com/common/v1/"
     },
