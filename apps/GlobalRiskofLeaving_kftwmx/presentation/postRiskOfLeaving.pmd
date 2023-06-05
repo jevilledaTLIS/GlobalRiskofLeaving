@@ -1,0 +1,186 @@
+{
+  "id": "postRiskOfLeaving",
+  "include": [
+        "riskDataList.script"
+  ],
+  "endPoints": [
+  ],
+  "outboundData": {
+    "outboundEndPoints": [
+      {
+        "baseUrlType": "BUSINESS-OBJECT",
+        "name": "TIRiskOfLeavingPOST",
+        "authType": "sso",
+        "url": "/tIRiskOfLeavings",
+        "httpMethod": "POST",
+        "values": [
+          {
+            "outboundPath": "createdBy.id",
+            "value": "<% queryParams.currLoginUserID %>"
+          },
+          {
+            "outboundPath": "tentativeLeavingDate",
+            "value": "<% date:format(tentativeDateLeaving.value, 'yyyy-MM-dd') %>"
+          },
+          {
+            "outboundPath": "entryDate",
+            "value": "<% date:format(date:now(), 'yyyy-MM-dd hh:mm:ss') %>"
+          },
+          {
+            "outboundPath": "riskStatus",
+            "value": "<% ( riskLevelList.getValue()[0] != 'Low' ) ?  'Open' : 'Resolved'  %>"
+          },
+          {
+            "outboundPath": "employee.id",
+            "value": "<% queryParams.userID  %>"
+          }
+        ]
+      }
+    ]
+  },
+  "onLoad": "<%
+             pageVariables.name = 'Quique';
+             %>",
+  "presentation": {
+    "headerSize": "VPS_DEFAULT",
+    "pageType": "edit",
+    "micro": true,
+    "microFirstPageOnly": true,
+    "title": {
+      "type": "title",
+      "label": "Create Risk Of leaving"
+    },
+    "body": {
+      "type": "section",
+      "horizontal": false,
+      "children": [
+        {
+          "type": "text",
+          "label": "Employee",
+          "id": "riskPerson",
+          "value": "<% queryParams.userDesc;%>",
+          "enabled": false
+        },
+        {
+          "type": "dropdown",
+          "label": "Risk of Leaving",
+          "id": "riskLevelList",
+          "values": "<%
+                     [{
+                         'id': 'Low',
+                         'descriptor': 'Low'
+                     },
+{
+                         'id': 'Medium',
+                         'descriptor': 'Medium'
+                     },
+{
+                         'id': 'High',
+                         'descriptor': 'High'
+                     }]
+                     %>",
+          "required": true,
+          "valueOutBinding": "TIRiskOfLeavingPOST.level",
+          "onChange": "<% riskDataList.getRiskLevel(self.getValue()); %>"
+        },
+        {
+          "type": "dropdown",
+          "id": "reasonLeaving",
+          "label": "Category",
+          "values": "<%[
+{
+              'id': 'Voluntary',
+              'descriptor': 'Voluntary'
+          },
+{
+              'id': 'Involuntary',
+              'descriptor': 'Involuntary'
+          }
+          ]%>",
+          "required": true,
+          "_visible": false,
+          "idKey": "descriptor",
+          "valueOutBinding": "TIRiskOfLeavingPOST.reasonOfLeaving",
+          "onChange": "<% riskDataList.setReason(self.getValue()); %>"
+        },
+        {
+          "type": "dropdown",
+          "id": "subReasonLeaving",
+          "label": "Reason",
+          "values": "<% [] %>",
+          "required": true,
+          "valueOutBinding": "TIRiskOfLeavingPOST.subReasonOfLeaving"
+        },
+        {
+          "type": "date",
+          "id": "tentativeDateLeaving",
+          "label": "Tentative Date of Leaving",
+          "required": true,
+          "valueOutBinding": "TIRiskOfLeavingPOST.tentativeLeavingDate"
+        },
+        {
+          "type": "instanceList",
+          "label": "Engagement Level",
+          "id": "engagementList",
+          "instanceList": [
+            {
+              "id": "Engaged",
+              "descriptor": "Engaged"
+            },
+            {
+              "id": "Passive",
+              "descriptor": "Passive"
+            },
+            {
+              "id": "Disengaged",
+              "descriptor": "Disengaged"
+            }
+          ],
+          "required": true,
+          "valueOutBinding": "TIRiskOfLeavingPOST.engagementLevel"
+        },
+        {
+          "type": "dropdown",
+          "id": "engagementReason",
+          "label": "Engagement Reason",
+          "values": "<% riskDataList.engagementReason %>",
+          "required": true,
+          "valueOutBinding": "TIRiskOfLeavingPOST.engagementReason"
+        },
+        {
+          "type": "dropdown",
+          "id": "performanceRating",
+          "label": "Performance Rating",
+          "values": "<% [
+{
+              'id': 'Exceed Expectactions',
+              'descriptor': 'Exceed Expectactions'
+          },
+{
+              'id': 'Meets Expectactions',
+              'descriptor': 'Meets Expectactions'
+          },
+{
+              'id': 'Below Expectactions',
+              'descriptor': 'Below Expectactions'
+          }
+          ] %>",
+          "valueOutBinding": "TIRiskOfLeavingPOST.performanceRating"
+        },
+        {
+          "type": "checkBox",
+          "id": "worthRetain",
+          "label": "Worth to Retain",
+          "value": "<% false %>",
+          "valueOutBinding": "TIRiskOfLeavingPOST.worthToRetain"
+        },
+        {
+          "type": "textArea",
+          "id": "comment",
+          "label": "Comment",
+          "valueOutBinding": "TIRiskOfLeavingPOST.comment"
+        }
+      ]
+    }
+  }
+}

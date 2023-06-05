@@ -24,7 +24,7 @@
               // Two records are needed because we need the old one and the current one if it has it.
               var query = 'SELECT employee, entryDate, level, riskStatus'+
                   ' FROM  GlobalRiskofLeaving_kftwmx_tIRiskOfLeavings '+
-                  ' WHERE (employee = \"'  + id +'\") ORDER BY entryDate DESC LIMIT 2  ';
+                  ' WHERE (employee = \"'  + id +'\") ORDER BY entryDate DESC , workdayID DESC LIMIT 2 ';
               return 'data?query=' + query.urlEncode();
               %>"
     },
@@ -47,6 +47,11 @@
               %>"
     }
   ],
+  "onLoad": "<%
+             pageVariables.riskID = null;
+             pageVariables.mainUser = !empty queryParams.currUserID ? queryParams.currUserID : currLoginUser.id;
+
+             %>",
   "presentation": {
     "headerSize": "VPS_DEFAULT",
     "title": {
@@ -63,7 +68,7 @@
             "label": "Team Member Group",
             "id": "teamMemberGroup",
             "rows": "<%
-                     var user = !empty queryParams.currUserID ? queryParams.currUserID : currLoginUser.id
+                     var user = !empty queryParams.currUserID ? queryParams.currUserID : currLoginUser.id;
                      var ReportData = directReports.invoke( {'directID': user});
                      return ReportData.data;
                      %>",
@@ -140,8 +145,9 @@
                               empty(risk.data);
                               %>",
                   "taskReference": {
-                    "taskId": "home",
+                    "taskId": "postRiskOfLeaving",
                     "parameterBindings": {
+                      "currLoginUserID": "<% currLoginUser.id %>",
                       "userID": "<% reportRow.id %>",
                       "userDesc": "<% reportRow.descriptor %>"
                     }
@@ -186,6 +192,7 @@
                   "label": "Initiate",
                   "visible": "<%
                               var risk = openRetentionWorker.invoke( {'id': reportRow.id});
+                              if (!empty risk.data) pageVariables.riskID = risk.data[0].workdayID;
                               return (!empty risk.data);
                               %>"
                 }
@@ -197,9 +204,11 @@
                 "cellTemplate": {
                   "type": "text",
                   "value": "<%
-                            var risk          = openRetentionWorker.invoke({'id': reportRow.id});
+                           /* var risk          = openRetentionWorker.invoke({'id': reportRow.id});
                             var retentionID   = (!empty risk.data) ? risk.data[0].workdayID : null;
-                            var total =  (retentionID != null) ? totalRetentions.invoke({'id': retentionID}).total : 0;
+                            var total =  (retentionID != null) ? totalRetentions.invoke({'id': retentionID}).total : 0; */
+
+                            (pageVariables.riskID != null) ? totalRetentions.invoke({'id': pageVariables.riskID}).total : 0;
                             %>"
                 }
               },
@@ -253,7 +262,9 @@
       "children": [
         {
           "type": "text",
-          "id": "hello"
+          "id": "CurrentUser",
+          "label": "Team Members List as",
+          "value": "<% pageVariables.mainUser %>"
         }
       ]
     }

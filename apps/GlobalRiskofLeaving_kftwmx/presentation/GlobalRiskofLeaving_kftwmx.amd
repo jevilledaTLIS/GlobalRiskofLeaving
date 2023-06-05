@@ -1,11 +1,18 @@
 {
-  "appProperties": [ ],
+  "appProperties": [],
   "tasks": [
     {
       "id": "root",
       "routingPattern": "/",
       "page": {
         "id": "home"
+      }
+    },
+    {
+      "id": "postRiskOfLeaving",
+      "routingPattern": "postRiskOfLeaving",
+      "page": {
+        "id": "postRiskOfLeaving"
       }
     }
   ],
