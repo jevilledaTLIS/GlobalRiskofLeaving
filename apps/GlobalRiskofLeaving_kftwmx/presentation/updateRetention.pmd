@@ -1,0 +1,30 @@
+{
+  "id": "updateRetention",
+  "endPoints": [
+
+  ],
+  "outboundData": {
+    "outboundEndPoints": [
+    ]
+  },
+  "presentation": {
+    "headerSize": "VPS_DEFAULT",
+    "pageType": "edit",
+    "title": {
+      "type": "title",
+      "label": "Update Retention Effort"
+    },
+    "body": {
+      "type": "section",
+      "horizontal": false,
+      "children": [
+        {
+          "type": "text",
+          "id": "hello",
+          "label": "Hello World! Update Retention",
+          "enabled": false
+        }
+      ]
+    }
+  }
+}

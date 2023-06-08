@@ -1,0 +1,55 @@
+{
+  "id": "retentionGrid",
+  "endPoints": [
+    {
+      "name": "totalRetentions",
+      "baseUrlType": "BUSINESS-OBJECT",
+      "authType": "sso",
+      "deferred": true,
+      "url": "<% '/tIRetentionEfforts?riskOfLeaving='+ id;
+              %>"
+    }
+  ],
+  "outboundData": {
+    "outboundEndPoints": [
+    ]
+  },
+  "presentation": {
+    "headerSize": "VPS_DEFAULT",
+    "micro": true,
+    "microFirstPageOnly": true,
+    "title": {
+      "type": "title",
+      "label": "Retention Effort List"
+    },
+    "body": {
+      "type": "section",
+      "horizontal": false,
+      "children": [
+        {
+          "type": "grid",
+
+          "label": "Team Member Group",
+          "id": "teamMemberGroup",
+          "rows": "<%
+                   var ReportData = totalRetentions.invoke( {'id': queryParams.riskID});
+                   return ReportData.data;
+                   %>",
+          "rowVariableName": "reportRow",
+          "enabled": false,
+          "columns": [
+            {
+              "type": "column",
+              "columnId": "teamMember",
+              "label": "Team Member",
+              "cellTemplate": {
+                "type": "text",
+                "value": "<% reportRow.retentionEffort %>"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

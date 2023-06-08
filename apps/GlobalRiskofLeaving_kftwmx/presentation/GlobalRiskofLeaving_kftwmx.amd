@@ -14,6 +14,27 @@
       "page": {
         "id": "postRiskOfLeaving"
       }
+    },
+    {
+      "id": "postRetentionEffort",
+      "routingPattern": "postRetentionEffort",
+      "page": {
+        "id": "postRetentionEffort"
+      }
+    },
+    {
+      "id": "updateRetention",
+      "routingPattern": "updateRetention",
+      "page": {
+        "id": "updateRetention"
+      }
+    },
+    {
+      "id": "retentionGrid",
+      "routingPattern": "retentionGrid",
+      "page": {
+        "id": "retentionGrid"
+      }
     }
   ],
   "applicationId": "GlobalRiskofLeaving_kftwmx",

@@ -38,9 +38,6 @@
       }
     ]
   },
-  "onLoad": "<%
-             pageVariables.name = 'Quique';
-             %>",
   "presentation": {
     "headerSize": "VPS_DEFAULT",
     "pageType": "edit",

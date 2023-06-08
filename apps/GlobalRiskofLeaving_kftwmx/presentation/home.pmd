@@ -45,11 +45,24 @@
       "deferred": true,
       "url": "<% '/tIRetentionEfforts?riskOfLeaving='+ id;
               %>"
+    },
+    {
+      "name": "rententionList",
+      "baseUrlType": "WQL",
+      "authType": "sso",
+      "deferred": true,
+      "url": "<%
+              var query = 'SELECT status, entryDate, intervention, workdayID'+
+                  ' FROM  GlobalRiskofLeaving_kftwmx_tIRetentionEfforts'+
+                  ' WHERE (riskOfLeaving = \"'  + id +'\") ORDER BY entryDate DESC , workdayID DESC LIMIT 2 ';
+              return 'data?query=' + query.urlEncode();
+              %>"
     }
   ],
   "onLoad": "<%
              pageVariables.riskID = null;
-             pageVariables.mainUser = !empty queryParams.currUserID ? queryParams.currUserID : currLoginUser.id;
+             pageVariables.mainUser = !empty queryParams.userDesc ? queryParams.userDesc : currLoginUser.descriptor;
+             pageVariables.totalRetention = null;
 
              %>",
   "presentation": {
@@ -82,7 +95,10 @@
                 "_sortableAndFilterable": "true",
                 "cellTemplate": {
                   "type": "text",
-                  "value": "<% reportRow.descriptor %>"
+                  "value": "<%
+                            pageVariables.totalRetention = 0;
+                            reportRow.descriptor ;
+                            %>"
                 }
               },
               {
@@ -99,7 +115,8 @@
                   "taskReference": {
                     "taskId": "root",
                     "parameterBindings": {
-                      "currUserID": "<% reportRow.id %>"
+                      "currUserID": "<% reportRow.id %>",
+                      "userDesc": "<% reportRow.descriptor %>"
                     }
                   }
                 }
@@ -194,8 +211,17 @@
                               var risk = openRetentionWorker.invoke( {'id': reportRow.id});
                               if (!empty risk.data) pageVariables.riskID = risk.data[0].workdayID;
                               return (!empty risk.data);
-                              %>"
-                }
+                              %>",
+                  "taskReference": {
+                    "taskId": "postRetentionEffort",
+                    "parameterBindings": {
+                      "currLoginUserID": "<% currLoginUser.id %>",
+                      "userID": "<% reportRow.id %>",
+                      "userDesc": "<% reportRow.descriptor %>",
+                      "riskID": "<% pageVariables.riskID %>"
+                    }
+                  }
+               }
               },
               {
                 "type": "column",
@@ -204,12 +230,31 @@
                 "cellTemplate": {
                   "type": "text",
                   "value": "<%
-                           /* var risk          = openRetentionWorker.invoke({'id': reportRow.id});
+                            var risk          = openRetentionWorker.invoke({'id': reportRow.id});
                             var retentionID   = (!empty risk.data) ? risk.data[0].workdayID : null;
-                            var total =  (retentionID != null) ? totalRetentions.invoke({'id': retentionID}).total : 0; */
+                            var total =  (retentionID != null) ? totalRetentions.invoke({'id': retentionID}).total : 0;
+                            pageVariables.totalRetention = total;
 
-                            (pageVariables.riskID != null) ? totalRetentions.invoke({'id': pageVariables.riskID}).total : 0;
+
                             %>"
+                }
+              },
+              {
+                "type": "column",
+                "columnId": "gridRetentions",
+                "label": "View Retention Efforts",
+                "cellTemplate": {
+                  "type": "button",
+                  "action": "SECONDARY",
+                  "label": "View",
+                  "visible": "<% pageVariables.totalRetention > 0 %>",
+                  "taskReference": {
+                    "taskId": "retentionGrid",
+                    "parameterBindings": {
+                      "userDesc": "<% reportRow.descriptor %>",
+                      "riskID": "<% pageVariables.riskID %>"
+                    }
+                  }
                 }
               },
               {
@@ -249,6 +294,147 @@
                 "cellTemplate": {
                   "type": "text",
                   "value": "<% reportRow.descriptor %>"
+                }
+              },
+              {
+                "type": "column",
+                "columnId": "viewTeam",
+                "label": "View Team",
+                "cellTemplate": {
+                  "type": "button",
+                  "action": "AUXILIARY",
+                  "label": "View",
+                  "visible": "<%
+                              reportRow.isManager
+                              %>",
+                  "taskReference": {
+                    "taskId": "root",
+                    "parameterBindings": {
+                      "currUserID": "<% reportRow.id %>",
+                      "userDesc": "<% reportRow.descriptor %>"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "column",
+                "columnId": "riskid",
+                "label": "Risk",
+                "cellTemplate": {
+                  "type": "text",
+                  "value": "<%  var risk = openRetentionWorker.invoke( {'id': reportRow.id} );
+                            return risk.data %>"
+                }
+              },
+              {
+                "type": "column",
+                "columnId": "previousRetentionLevel",
+                "label": "Previous Retention Effort",
+                "cellTemplate": {
+                  "type": "text",
+                  "value": "<%
+                            var risk = openRetentionWorker.invoke( {'id': reportRow.id} );
+                            var retention =  (!empty risk.data) ? rententionList.invoke( {'id': risk.data[0].workdayID} ).data : [];
+                            (!empty retention  && retention.size() > 1) ? retention[1].intervention : null;
+
+                 %>"
+                }
+              },
+              {
+                "type": "column",
+                "columnId": "previousRetentionDate",
+                "label": "Previous Retention Effort Date",
+                "cellTemplate": {
+                  "type": "text",
+                  "value": "<%
+                            var risk = openRetentionWorker.invoke( {'id': reportRow.id} );
+                            var retention =  (!empty risk.data) ? rententionList.invoke( {'id': risk.data[0].workdayID} ).data : [];
+                            (!empty retention && retention.size() > 1) ? retention[1].entryDate : null;
+                            %>"
+                }
+              },
+              {
+                "type": "column",
+                "columnId": "currentRetentionLevel",
+                "label": "Current Retention Effort",
+                "cellTemplate": {
+                  "type": "text",
+                  "value": "<%
+                            var risk = openRetentionWorker.invoke( {'id': reportRow.id} );
+                            var retention =  (!empty risk.data) ? rententionList.invoke( {'id': risk.data[0].workdayID} ).data : [];
+                            if (!empty retention)
+                             (retention[0].status == 'Open') ?retention[0].intervention : null;
+                            %>"
+                }
+              },
+              {
+                "type": "column",
+                "columnId": "currentRetentionDate",
+                "label": "Current Retention Effort Date",
+                "cellTemplate": {
+                  "type": "text",
+                  "value": "<%
+                            var risk = openRetentionWorker.invoke( {'id': reportRow.id} );
+                            var retention =  (!empty risk.data) ? rententionList.invoke( {'id': risk.data[0].workdayID} ).data : [];
+                            if (!empty retention)
+                                (retention[0].status == 'Open') ?retention[0].entryDate : null;
+                            %>"
+                }
+              },
+              {
+                "type": "column",
+                "columnId": "RetentionButton",
+                "label": "Retention Effort",
+                "cellTemplate": {
+                  "type": "button",
+                  "action": "PRIMARY",
+                  "label": "Initiate",
+                  "visible": "<%
+                              var risk = openRetentionWorker.invoke( {'id': reportRow.id});
+                              if (!empty risk.data) pageVariables.riskID = risk.data[0].workdayID;
+                              return (!empty risk.data);
+                              %>",
+                  "taskReference": {
+                    "taskId": "postRetentionEffort",
+                    "parameterBindings": {
+                      "currLoginUserID": "<% currLoginUser.id %>",
+                      "userID": "<% reportRow.id %>",
+                      "userDesc": "<% reportRow.descriptor %>",
+                      "riskID": "<% pageVariables.riskID %>"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "column",
+                "columnId": "totalRetentions",
+                "label": "Total Open Retentions",
+                "cellTemplate": {
+                  "type": "text",
+                  "value": "<%
+                            var risk          = openRetentionWorker.invoke({'id': reportRow.id});
+                            var retentionID   = (!empty risk.data) ? risk.data[0].workdayID : null;
+                            var total =  (retentionID != null) ? totalRetentions.invoke({'id': retentionID}).total : 0;
+                            pageVariables.totalRetention = total;
+                            %>"
+                }
+              },
+              {
+                "type": "column",
+                "columnId": "gridRetentions",
+                "label": "View Retention Efforts",
+                "cellTemplate": {
+                  "type": "button",
+                  "action": "SECONDARY",
+                  "label": "View",
+                  "visible": "<% pageVariables.totalRetention > 0 %>",
+                  "taskReference": {
+                    "taskId": "retentionGrid",
+                    "parameterBindings": {
+                      "userDesc": "<% reportRow.descriptor %>",
+                      "riskID": "<% pageVariables.riskID %>"
+                    }
+                  }
                 }
               }
             ]

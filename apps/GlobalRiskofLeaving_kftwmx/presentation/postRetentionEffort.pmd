@@ -1,0 +1,82 @@
+{
+  "id": "postRetentionEffort",
+  "include": [
+        "retentionEffort.script"
+  ],
+  "endPoints": [
+  ],
+  "outboundData": {
+    "outboundEndPoints": [
+      {
+        "baseUrlType": "BUSINESS-OBJECT",
+        "name": "tIRetentionEffortsPOST",
+        "authType": "sso",
+        "url": "/tIRetentionEfforts",
+        "httpMethod": "POST",
+        "values": [
+          {
+            "outboundPath": "createdBy.id",
+            "value": "<% queryParams.currLoginUserID %>"
+          },
+          {
+            "outboundPath": "entryDate",
+            "value": "<% date:format(date:now(), 'yyyy-MM-dd hh:mm:ss') %>"
+          },
+          {
+            "outboundPath": "status",
+            "value": "<% 'Open' %>"
+          },
+          {
+            "outboundPath": "riskOfLeaving.id",
+            "value": "<% queryParams.riskID %>"
+          }
+        ]
+      }
+    ]
+  },
+  "presentation": {
+    "headerSize": "VPS_DEFAULT",
+    "pageType": "edit",
+    "micro": true,
+    "microFirstPageOnly": true,
+    "title": {
+      "type": "title",
+      "label": "Create Retention Effort"
+    },
+    "body": {
+      "type": "section",
+      "horizontal": false,
+      "children": [
+        {
+          "type": "fieldSet",
+          "id": "retentionEffortFS",
+          "_label": "Enter a Retention Effort",
+          "children": [
+              {
+                "type": "richText",
+                "label": "Employee",
+                "id": "rePerson",
+                "value": "<% queryParams.userDesc %>",
+                "enabled": false
+              },
+            {
+              "type": "dropdown",
+              "id": "interventionID",
+              "label": "Intervention",
+              "values": "<% retentionEffort.interventionList %>",
+              "valueOutBinding": "tIRetentionEffortsPOST.intervention",
+              "required": true
+            },
+            {
+              "type": "textArea",
+              "id": "retentionDescription",
+              "label": "Comment Effort Description",
+              "valueOutBinding": "tIRetentionEffortsPOST.retentionEffort",
+              "required": true
+            }
+          ]
+      }
+     ]
+    }
+}
+}
