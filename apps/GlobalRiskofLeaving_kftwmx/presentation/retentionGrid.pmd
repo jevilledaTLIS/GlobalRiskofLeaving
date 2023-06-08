@@ -29,22 +29,85 @@
         {
           "type": "grid",
 
-          "label": "Team Member Group",
-          "id": "teamMemberGroup",
+          "label": "Retention Efforts List",
+          "id": "retentionList",
           "rows": "<%
                    var ReportData = totalRetentions.invoke( {'id': queryParams.riskID});
                    return ReportData.data;
                    %>",
-          "rowVariableName": "reportRow",
+          "rowVariableName": "retentionRow",
           "enabled": false,
           "columns": [
             {
               "type": "column",
-              "columnId": "teamMember",
-              "label": "Team Member",
+              "columnId": "retentionEffortComment",
+              "label": "Description",
               "cellTemplate": {
                 "type": "text",
-                "value": "<% reportRow.retentionEffort %>"
+                "value": "<% retentionRow.retentionEffort %>"
+              }
+            },
+            {
+              "type": "column",
+              "columnId": "intervention",
+              "label": "Intervention",
+              "cellTemplate": {
+                "type": "text",
+                "value": "<% retentionRow.intervention %>"
+              }
+            },
+            {
+              "type": "column",
+              "columnId": "entryDate",
+              "label": "Entry Date",
+              "cellTemplate": {
+                "type": "text",
+                "value": "<% retentionRow.entryDate %>"
+              }
+            },
+            {
+              "type": "column",
+              "columnId": "resolutionDate",
+              "label": "Resolution Date",
+              "cellTemplate": {
+                "type": "text",
+                "value": "<% retentionRow.resolutionDate %>"
+              }
+            },
+            {
+              "type": "column",
+              "columnId": "resolutionComment",
+              "label": "Resolution Comment",
+              "cellTemplate": {
+                "type": "text",
+                "value": "<% retentionRow.resolutionComment %>"
+              }
+            },
+            {
+              "type": "column",
+              "columnId": "retentionStatus",
+              "label": "Retention Effort Status",
+              "cellTemplate": {
+                "type": "text",
+                "value": "<% retentionRow.status %>"
+              }
+            },
+            {
+              "type": "column",
+              "columnId": "updateRetention",
+              "label": "Update",
+              "cellTemplate": {
+                "type": "button",
+                "action": "AUXILIARY",
+                "label": "Update",
+                "visible": "<% ( retentionRow.status != 'Resolved' )  %>",
+                "taskReference": {
+                  "taskId": "updateRetention",
+                  "parameterBindings": {
+                    "rententionID": "<% retentionRow.id %>",
+                    "riskID": "<%  retentionRow.riskOfLeaving.id %>"
+                  }
+                }
               }
             }
           ]

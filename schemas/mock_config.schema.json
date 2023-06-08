@@ -37,16 +37,16 @@
         "endPointName": {
           "type": "string",
           "description":
-          "The name of the endpoint to return a mock response for. This can refer to the endpoint on a PMD or pod."
+          "The name of the endpoint to return a mock response for. This can refer to the endpoint on a PMD or pod.",
         },
         "pmdId": {
           "type": "string",
           "description":
-          "The ID of the PMD that references the endpoint. If the endpoint is referenced in a pod, pmdId is the ID of the PMD that invokes the pod."
+          "The ID of the PMD that references the endpoint. If the endpoint is referenced in a pod, pmdId is the ID of the PMD that invokes the pod.",
         },
         "podId": {
           "type": "string",
-          "description": "The ID of the pod that references the endpoint."
+          "description": "The ID of the pod that references the endpoint.",
         }
       },
       "required": ["endPointName"]

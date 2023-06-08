@@ -226,7 +226,7 @@
               {
                 "type": "column",
                 "columnId": "totalRetentions",
-                "label": "Total Open Retentions",
+                "label": "Total Retention Efforts",
                 "cellTemplate": {
                   "type": "text",
                   "value": "<%
@@ -234,8 +234,6 @@
                             var retentionID   = (!empty risk.data) ? risk.data[0].workdayID : null;
                             var total =  (retentionID != null) ? totalRetentions.invoke({'id': retentionID}).total : 0;
                             pageVariables.totalRetention = total;
-
-
                             %>"
                 }
               },
@@ -255,15 +253,6 @@
                       "riskID": "<% pageVariables.riskID %>"
                     }
                   }
-                }
-              },
-              {
-                "type": "column",
-                "columnId": "workdayID",
-                "label": "Workday ID",
-                "cellTemplate": {
-                  "type": "text",
-                  "value": "<% reportRow.id %>"
                 }
               }
             ]
@@ -314,16 +303,6 @@
                       "userDesc": "<% reportRow.descriptor %>"
                     }
                   }
-                }
-              },
-              {
-                "type": "column",
-                "columnId": "riskid",
-                "label": "Risk",
-                "cellTemplate": {
-                  "type": "text",
-                  "value": "<%  var risk = openRetentionWorker.invoke( {'id': reportRow.id} );
-                            return risk.data %>"
                 }
               },
               {
@@ -408,7 +387,7 @@
               {
                 "type": "column",
                 "columnId": "totalRetentions",
-                "label": "Total Open Retentions",
+                "label": "Total Retention Efforts",
                 "cellTemplate": {
                   "type": "text",
                   "value": "<%
