@@ -60,9 +60,9 @@
     }
   ],
   "onLoad": "<%
-             pageVariables.riskID = null;
              pageVariables.mainUser = !empty queryParams.userDesc ? queryParams.userDesc : currLoginUser.descriptor;
              pageVariables.totalRetention = null;
+             pageVariables.riskID = null;
 
              %>",
   "presentation": {
@@ -426,10 +426,21 @@
       "type": "section",
       "children": [
         {
+          "type": "button",
+          "action": "SECONDARY",
+          "label": "Back",
+          "visible": "<% !empty queryParams.currUserID && queryParams.currUserID != currLoginUser.id  %>",
+          "taskReference": {
+            "taskId": "root",
+            "parameterBindings": {
+              "currUserID": "<% currLoginUser.id %>"
+            }
+          }
+        },
+        {
           "type": "text",
           "id": "CurrentUser",
-          "label": "Team Members List as",
-          "value": "<% pageVariables.mainUser %>"
+          "value": "<% pageVariables.mainUser + '\\'s' + ' Team Members' %>"
         }
       ]
     }

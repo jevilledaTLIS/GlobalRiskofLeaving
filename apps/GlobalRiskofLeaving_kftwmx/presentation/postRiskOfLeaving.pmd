@@ -95,7 +95,6 @@
           }
           ]%>",
           "required": true,
-          "_visible": false,
           "idKey": "descriptor",
           "valueOutBinding": "TIRiskOfLeavingPOST.reasonOfLeaving",
           "onChange": "<% riskDataList.setReason(self.getValue()); %>"
