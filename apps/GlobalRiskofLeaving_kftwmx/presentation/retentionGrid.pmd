@@ -27,6 +27,13 @@
       "horizontal": false,
       "children": [
         {
+          "type": "text",
+          "label": "Employee",
+          "id": "reTeamMember",
+          "value": "<% queryParams.userDesc %>",
+          "enabled": false
+        },
+        {
           "type": "grid",
 
           "label": "Retention Efforts List",
