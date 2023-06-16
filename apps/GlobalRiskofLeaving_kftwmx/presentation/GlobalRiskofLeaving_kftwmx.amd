@@ -1,5 +1,67 @@
 {
   "appProperties": [],
+  "flowDefinitions": [
+    {
+      "id": "confirmationRisk",
+      "flowSteps": [
+        {
+          "id": "CreateRisk",
+          "taskId": "postRiskOfLeaving",
+          "transitions": [
+            {
+              "order": "a",
+              "value": "home",
+              "condition": "true"
+            }
+          ]
+        },
+        {
+          "id": "home",
+          "taskId": "root"
+        }
+      ]
+    },
+    {
+      "id": "confirmationEffort",
+      "flowSteps": [
+        {
+          "id": "CreateRetention",
+          "taskId": "postRetentionEffort",
+          "transitions": [
+            {
+              "order": "a",
+              "value": "homeTwo",
+              "condition": "true"
+            }
+          ]
+        },
+        {
+          "id": "homeTwo",
+          "taskId": "root"
+        }
+      ]
+    },
+    {
+      "id": "confirmationUpdate",
+      "flowSteps": [
+        {
+          "id": "UpdateRetentionEffort",
+          "taskId": "updateRetention",
+          "transitions": [
+            {
+              "order": "a",
+              "value": "homeThree",
+              "condition": "true"
+            }
+          ]
+        },
+        {
+          "id": "homeThree",
+          "taskId": "root"
+        }
+      ]
+    }
+  ],
   "tasks": [
     {
       "id": "root",

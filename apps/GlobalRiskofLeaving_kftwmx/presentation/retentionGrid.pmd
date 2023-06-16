@@ -112,6 +112,8 @@
                   "taskId": "updateRetention",
                   "parameterBindings": {
                     "rententionID": "<% retentionRow.id %>",
+                    "userDescMain" : "<% queryParams.userDescMain %>",
+                    "currUserID": "<% queryParams.currUserID %>",
                     "riskID": "<%  retentionRow.riskOfLeaving.id %>"
                   }
                 }

@@ -60,7 +60,7 @@
     }
   ],
   "onLoad": "<%
-             pageVariables.mainUser = !empty queryParams.userDesc ? queryParams.userDesc : currLoginUser.descriptor;
+             pageVariables.mainUser = !empty queryParams.userDescMain ? queryParams.userDescMain : currLoginUser.descriptor;
              pageVariables.totalRetention = null;
              pageVariables.riskID = null;
              pageVariables.reportData = null;
@@ -124,7 +124,7 @@
                     "taskId": "root",
                     "parameterBindings": {
                       "currUserID": "<% reportRow.id %>",
-                      "userDesc": "<% reportRow.descriptor %>"
+                      "userDescMain": "<% reportRow.descriptor %>"
                     }
                   }
                 }
@@ -174,7 +174,9 @@
                     "parameterBindings": {
                       "currLoginUserID": "<% currLoginUser.id %>",
                       "userID": "<% reportRow.id %>",
-                      "userDesc": "<% reportRow.descriptor %>"
+                      "userDesc": "<% reportRow.descriptor %>",
+                      "userDescMain" : "<% queryParams.userDescMain %>",
+                      "currUserID": "<% queryParams.currUserID %>"
                     }
                   }
                 }
@@ -226,6 +228,8 @@
                       "currLoginUserID": "<% currLoginUser.id %>",
                       "userID": "<% reportRow.id %>",
                       "userDesc": "<% reportRow.descriptor %>",
+                      "userDescMain" : "<% queryParams.userDescMain %>",
+                      "currUserID": "<% queryParams.currUserID %>",
                       "riskID": "<% pageVariables.riskID %>"
                     }
                   }
@@ -260,6 +264,8 @@
                     "taskId": "retentionGrid",
                     "parameterBindings": {
                       "userDesc": "<% reportRow.descriptor %>",
+                      "userDescMain" : "<% queryParams.userDescMain %>",
+                      "currUserID": "<% queryParams.currUserID %>",
                       "riskID": "<% pageVariables.riskID %>"
                     }
                   }
@@ -312,7 +318,7 @@
                     "taskId": "root",
                     "parameterBindings": {
                       "currUserID": "<% reportRow.id %>",
-                      "userDesc": "<% reportRow.descriptor %>"
+                      "userDescMain": "<% reportRow.descriptor %>"
                     }
                   }
                 }
@@ -390,8 +396,9 @@
                       "currLoginUserID": "<% currLoginUser.id %>",
                       "userID": "<% reportRow.id %>",
                       "userDesc": "<% reportRow.descriptor %>",
-                      "riskID": "<% pageVariables.riskID %>",
-                      "currUserID": "<% queryParams.currUserID  %>"
+                      "userDescMain" : "<% queryParams.userDescMain %>",
+                      "currUserID": "<% queryParams.currUserID %>",
+                      "riskID": "<% pageVariables.riskID %>"
                     }
                   }
                 }
@@ -425,6 +432,8 @@
                     "taskId": "retentionGrid",
                     "parameterBindings": {
                       "userDesc": "<% reportRow.descriptor %>",
+                      "userDescMain" : "<% queryParams.userDescMain %>",
+                      "currUserID": "<% queryParams.currUserID %>",
                       "riskID": "<% pageVariables.riskID %>"
                     }
                   }
@@ -443,7 +452,7 @@
           "type": "button",
           "action": "SECONDARY",
           "label": "Back",
-          "visible": "<% queryParams.currUserID != currLoginUser.id %>",
+          "visible": "<% !empty queryParams.currUserID && queryParams.currUserID != currLoginUser.id %>",
           "taskReference": {
             "taskId": "root",
             "parameterBindings": {

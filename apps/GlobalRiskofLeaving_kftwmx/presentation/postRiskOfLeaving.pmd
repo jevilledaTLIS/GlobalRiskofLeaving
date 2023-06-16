@@ -35,6 +35,21 @@
             "value": "<% queryParams.userID  %>"
           }
         ]
+      },
+      {
+        "type" : "outboundVariable",
+        "variableScope" : "flow",
+        "name" : "transitionOutboundVars",
+        "values" : [
+          {
+            "outboundPath": "currUserID",
+            "value": "<% queryParams.currUserID %>"
+          },
+          {
+            "outboundPath": "userDescMain",
+            "value": "<% queryParams.userDescMain %>"
+          }
+      ]
       }
     ]
   },
