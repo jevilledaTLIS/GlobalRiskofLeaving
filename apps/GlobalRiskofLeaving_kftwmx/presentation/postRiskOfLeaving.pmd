@@ -70,7 +70,7 @@
           "type": "text",
           "label": "Employee",
           "id": "riskPerson",
-          "value": "<% queryParams.userDesc;%>",
+          "value": "<% queryParams.userDesc; %>",
           "enabled": false
         },
         {
@@ -94,6 +94,13 @@
           "required": true,
           "valueOutBinding": "TIRiskOfLeavingPOST.level",
           "onChange": "<% riskDataList.getRiskLevel(self.getValue()); %>"
+        },
+        {
+          "type": "text",
+          "id": "warningText",
+          "label": "Alert",
+          "value": "<% 'Please remember that each Medium-High Risk of Leaving team member must also have retention effort. Remember to initiate a retention effort once you have finished updating the Risk of Leaving status' %>",
+          "enabled": false
         },
         {
           "type": "dropdown",

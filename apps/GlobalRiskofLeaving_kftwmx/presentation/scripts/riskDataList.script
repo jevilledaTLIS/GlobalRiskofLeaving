@@ -73,11 +73,13 @@ var getRiskLevel = function(level) {
     reasonLeaving.setVisible( true );
       subReasonLeaving.setVisible( true );
       tentativeDateLeaving.setVisible( true );
+      warningText.setVisible( true );
 
   } else {
     reasonLeaving.setVisible( false );
       subReasonLeaving.setVisible( false );
       tentativeDateLeaving.setVisible( false );
+      warningText.setVisible( false );
   }
 };
 
